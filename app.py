@@ -1,6 +1,7 @@
 import streamlit as st
 import pickle
 import numpy as np
+import pandas as pd
 
 # 1. Page Title & Styling
 st.set_page_config(page_title="Smart Card User Segmentation", layout="centered")
@@ -59,25 +60,7 @@ try:
     # 4. Predict button
     st.markdown("---")
     if st.button("Predict Cluster", use_container_width=True):
-        # Saare 18 features ko EXACT usi sequence me daalna hai jo aapne bheja hai
-        input_data = np.array([[
-            Income, Recency, NumDealsPurchases, NumWebPurchases, 
-            NumCatalogPurchases, NumStorePurchases, NumWebVisitsMonth, 
-            Complain, Response, Age, Customer_Tenure_Days, Total_Spending, 
-            Total_Children, Education_Graduate, Education_Postgraduate, 
-            Education_Undergraduate, Living_With_Alone, Living_With_Partner
-        ]])
-        
-        # Scale corporate data
-        scaled_data = scaler.transform(input_data)
-        
-        # Prediction
-      # 4. Predict button
-    st.markdown("---")
-    if st.button("Predict Cluster", use_container_width=True):
-        import pandas as pd # Top par import karne ki zarurat nahi, yahi karlo direct
-        
-        # Ek dictionary banao jisme keys EXACTLY aapke original columns ke naam hain
+        # Dictionary format with DataFrame to ensure column mapping
         input_dict = {
             'Income': [Income],
             'Recency': [Recency],
@@ -99,19 +82,17 @@ try:
             'Living_With_Partner': [Living_With_Partner]
         }
         
-        # Isko DataFrame me convert karo (is se column names model ko dikhenge)
         input_df = pd.DataFrame(input_dict)
         
-        try:
-            # Data scale karo DataFrame ke sath
-            scaled_data = scaler.transform(input_df)
-            
-            # Prediction
-            cluster = model.predict(scaled_data)[0]
-            
-            # Big Success Box
-            st.balloons()
-            st.success(f"🎉 **This customer belongs to Cluster Number: {cluster}**")
-            
-        except ValueError as e:
-            st.error(f"⚠️ Column mismatch error! Model expects something else. Details: {e}")
+        # Scale corporate data and predict
+        scaled_data = scaler.transform(input_df)
+        cluster = model.predict(scaled_data)[0]
+        
+        # Big Success Box
+        st.balloons()
+        st.success(f"🎉 **This customer belongs to Cluster Number: {cluster}**")
+
+except FileNotFoundError:
+    st.error("⚠️ Error: Model or Scaler file missing in GitHub repo.")
+except Exception as e:
+    st.error(f"⚠️ Internal Error: {e}")
