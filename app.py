@@ -72,11 +72,46 @@ try:
         scaled_data = scaler.transform(input_data)
         
         # Prediction
-        cluster = model.predict(scaled_data)[0]
+      # 4. Predict button
+    st.markdown("---")
+    if st.button("Predict Cluster", use_container_width=True):
+        import pandas as pd # Top par import karne ki zarurat nahi, yahi karlo direct
         
-        # Big Success Box
-        st.balloons()
-        st.success(f"🎉 **This customer belongs to Cluster Number: {cluster}**")
-
-except FileNotFoundError as e:
-    st.error(f"Error: Model (`kmeans_model.pkl`) or Scaler (`scaler.pkl`) file missing in GitHub repo.")
+        # Ek dictionary banao jisme keys EXACTLY aapke original columns ke naam hain
+        input_dict = {
+            'Income': [Income],
+            'Recency': [Recency],
+            'NumDealsPurchases': [NumDealsPurchases],
+            'NumWebPurchases': [NumWebPurchases],
+            'NumCatalogPurchases': [NumCatalogPurchases],
+            'NumStorePurchases': [NumStorePurchases],
+            'NumWebVisitsMonth': [NumWebVisitsMonth],
+            'Complain': [Complain],
+            'Response': [Response],
+            'Age': [Age],
+            'Customer_Tenure_Days': [Customer_Tenure_Days],
+            'Total_Spending': [Total_Spending],
+            'Total_Children': [Total_Children],
+            'Education_Graduate': [Education_Graduate],
+            'Education_Postgraduate': [Education_Postgraduate],
+            'Education_Undergraduate': [Education_Undergraduate],
+            'Living_With_Alone': [Living_With_Alone],
+            'Living_With_Partner': [Living_With_Partner]
+        }
+        
+        # Isko DataFrame me convert karo (is se column names model ko dikhenge)
+        input_df = pd.DataFrame(input_dict)
+        
+        try:
+            # Data scale karo DataFrame ke sath
+            scaled_data = scaler.transform(input_df)
+            
+            # Prediction
+            cluster = model.predict(scaled_data)[0]
+            
+            # Big Success Box
+            st.balloons()
+            st.success(f"🎉 **This customer belongs to Cluster Number: {cluster}**")
+            
+        except ValueError as e:
+            st.error(f"⚠️ Column mismatch error! Model expects something else. Details: {e}")
